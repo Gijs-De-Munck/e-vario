@@ -7,11 +7,10 @@ int angle_degrees = 180; // Initial angle
 
 float temperature = 30;
 float previous_temperature = 0;
-float sink = 1;
 float previous_sink = 0;
 
 void drawArrow(int angle);
-void writeVario(int sink);
+void writeVario(float sink);
 
 void setup() {
     uint16_t ID = tft.readID();
@@ -26,6 +25,7 @@ void setup() {
 
 void loop() {
     static int delta = 2;
+    float sink = 1.5;
     angle_degrees += delta;
     if(angle_degrees >= 360) {
         delta = -abs(delta);
@@ -38,7 +38,7 @@ void loop() {
     //angle_degrees = (angle_degrees + 2) % 360; // Keep angle within 0-359 degrees
     drawArrow(angle_degrees);
     writeVario(sink);
-    delay(100); // Adjust delay for desired update speed
+    delay(50);
     //end of vario needle
 
     //begin of temperature indicator
@@ -91,21 +91,15 @@ void drawArrow(int angle_degrees) {
     old_end_y = end_y;
 }
 
-void writeVario(int sink) {
+void writeVario(float sink) {
     if(sink != previous_sink) {
         tft.setCursor(120, 170);
         tft.setTextColor(TFT_BLACK);
         tft.setTextSize(4);
-        tft.print(previous_sink);
-        tft.write('m');
-        tft.write('|');
-        tft.write('s');
+        tft.print(previous_sink, 1);
         tft.setCursor(120, 145);
         tft.setTextColor(TFT_WHITE);
-        tft.print(sink);
-        tft.write('m');
-        tft.write('|');
-        tft.write('s');
+        tft.print(sink, 1);
         previous_sink = sink;
     }
 }

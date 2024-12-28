@@ -7,8 +7,11 @@ int angle_degrees = 180; // Initial angle
 
 float temperature = 30;
 float previous_temperature = 0;
+float sink = 1;
+float previous_sink = 0;
 
 void drawArrow(int angle);
+void writeVario(int sink);
 
 void setup() {
     uint16_t ID = tft.readID();
@@ -34,6 +37,7 @@ void loop() {
 
     //angle_degrees = (angle_degrees + 2) % 360; // Keep angle within 0-359 degrees
     drawArrow(angle_degrees);
+    writeVario(sink);
     delay(100); // Adjust delay for desired update speed
     //end of vario needle
 
@@ -85,4 +89,23 @@ void drawArrow(int angle_degrees) {
     old_start_y_2 = start_y_2;
     old_end_x = end_x;
     old_end_y = end_y;
+}
+
+void writeVario(int sink) {
+    if(sink != previous_sink) {
+        tft.setCursor(120, 170);
+        tft.setTextColor(TFT_BLACK);
+        tft.setTextSize(4);
+        tft.print(previous_sink);
+        tft.write('m');
+        tft.write('|');
+        tft.write('s');
+        tft.setCursor(120, 145);
+        tft.setTextColor(TFT_WHITE);
+        tft.print(sink);
+        tft.write('m');
+        tft.write('|');
+        tft.write('s');
+        previous_sink = sink;
+    }
 }

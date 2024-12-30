@@ -6,7 +6,7 @@ MCUFRIEND_kbv tft;
 float temperature = 30;
 float previous_temperature = 0;
 float previous_sink = 0;
-bool previous_triangle = 0;
+int previous_triangle = 0;
 int previous_angle_degrees = 0;
 
 void drawArrow(int angle);
@@ -104,8 +104,8 @@ void writeVario(float sink) {
 }
 
 void varioTriangle(float sink) {
-    if(sink < 0  && previous_triangle != 0) {
-        previous_triangle = 0;
+    if(sink < 0  && previous_triangle != -1) {
+        previous_triangle = -1;
         tft.fillTriangle(120, 175, 185, 175, 152.5, 200, TFT_WHITE);
         tft.fillTriangle(120, 142, 185, 142, 152.5, 117, TFT_BLACK);
     }
@@ -113,5 +113,13 @@ void varioTriangle(float sink) {
         previous_triangle = 1;
         tft.fillTriangle(120, 175, 185, 175, 152.5, 200, TFT_BLACK);
         tft.fillTriangle(120, 142, 185, 142, 152.5, 117, TFT_WHITE);
+    }
+    if(sink = 0 && previous_triangle == 1) {
+        tft.fillTriangle(120, 142, 185, 142, 152.5, 117, TFT_BLACK);
+        previous_triangle = 0;
+    }
+    if(sink = 0 && previous_triangle == -1) {
+        tft.fillTriangle(120, 175, 185, 175, 152.5, 200, TFT_BLACK);
+        previous_triangle = 0;
     }
 }

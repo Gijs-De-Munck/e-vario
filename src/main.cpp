@@ -5,8 +5,6 @@
 
 MCUFRIEND_kbv tft;
 
-float temperature = 30;
-float previous_temperature = 0;
 
 
 void setup() {
@@ -23,26 +21,15 @@ void setup() {
 void loop() {
     static float sink = 0;
     static float delta_sink = 0.1;
+    static float temperature = 30;
     sink += delta_sink;
     if(abs(sink) >= 5.)
         delta_sink = -delta_sink;
 
-    updateVario(tft, sink);
+    updateVario(tft, sink, temperature);
     delay(50);
 
     //end of vario needle
-
-    //begin of temperature indicator
-    if(temperature != previous_temperature) {
-        tft.setCursor(10, 10);
-        tft.setTextSize(2);
-        tft.setTextColor(TFT_BLACK);
-        tft.print(previous_temperature, 1);
-        tft.write('C');
-        tft.setCursor(10, 10);
-        tft.setTextColor(TFT_WHITE);
-        tft.print(temperature, 1);
-        tft.write('C');
-        previous_temperature = temperature;
-    }
 }
+
+

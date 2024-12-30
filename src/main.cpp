@@ -1,17 +1,13 @@
 #include <MCUFRIEND_kbv.h>
 #include <math.h>
 
+#include <vario.hpp>
+
 MCUFRIEND_kbv tft;
 
 float temperature = 30;
 float previous_temperature = 0;
-float previous_sink = 0;
-int previous_triangle = 0;
-int previous_angle_degrees = 0;
 
-void drawArrow(int angle);
-void writeVario(float sink);
-void varioTriangle(float sink);
 
 void setup() {
     uint16_t ID = tft.readID();
@@ -25,16 +21,15 @@ void setup() {
 }
 
 void loop() {
-    float sink = 1;
-    int angle_degrees = sink * 18 -90;
+    static float sink = 0;
+    static float delta_sink = 0.1;
+    sink += delta_sink;
+    if(abs(sink) >= 5.)
+        delta_sink = -delta_sink;
 
-    // Increment angle
-
-    //angle_degrees = (angle_degrees + 2) % 360; // Keep angle within 0-359 degrees
-    drawArrow(angle_degrees);
-    writeVario(sink);
-    varioTriangle(sink);
+    updateVario(tft, sink);
     delay(50);
+
     //end of vario needle
 
     //begin of temperature indicator
@@ -49,77 +44,5 @@ void loop() {
         tft.print(temperature, 1);
         tft.write('C');
         previous_temperature = temperature;
-    }
-}
-
-void drawArrow(int angle_degrees) {
-    if(angle_degrees != previous_angle_degrees) {
-        const int cx = 160;       // Center of the clock
-        const int cy = 160;
-        const int length = 50;    // Length of the hand
-        const int width = 5; 
-        const int start_offset = 85; // Distance from the center to start the line
-
-        static int old_start_x_1, old_start_y_1, old_start_x_2, old_start_y_2, old_end_x, old_end_y; // To track previous hand position
-
-        float angle_radians = angle_degrees * PI / 180.0;
-        float cos_angle = cos(angle_radians);
-        float sin_angle = sin(angle_radians);
-
-        int start_x_1 = cx + start_offset * sin_angle - width * cos_angle;
-        int start_y_1 = cy - start_offset * cos_angle - width * sin_angle;
-        int start_x_2 = cx + start_offset * sin_angle + width * cos_angle;
-        int start_y_2 = cy - start_offset * cos_angle + width * sin_angle;
-        int end_x = cx + (start_offset + length) * sin_angle;
-        int end_y = cy - (start_offset + length) * cos_angle;
-
-     // Erase old hand
-        if (old_end_x != 0 || old_end_y != 0) { // Only erase if an old hand exists
-            tft.fillTriangle(old_start_x_1, old_start_y_1, old_start_x_2, old_start_y_2, old_end_x, old_end_y, TFT_BLACK);
-    }
-
-        tft.fillTriangle(start_x_1, start_y_1, start_x_2, start_y_2, end_x, end_y, TFT_RED);
-
-        old_start_x_1 = start_x_1;
-        old_start_y_1 = start_y_1;
-        old_start_x_2 = start_x_2;
-        old_start_y_2 = start_y_2;
-        old_end_x = end_x;
-        old_end_y = end_y;
-        previous_angle_degrees = angle_degrees;
-    }
-}
-
-void writeVario(float sink) {
-    if(sink != previous_sink) {
-        tft.setCursor(120, 170);
-        tft.setTextColor(TFT_BLACK);
-        tft.setTextSize(4);
-        tft.print(abs(previous_sink), 1);
-        tft.setCursor(120, 145);
-        tft.setTextColor(TFT_WHITE);
-        tft.print(abs(sink), 1);
-        previous_sink = sink;
-    }
-}
-
-void varioTriangle(float sink) {
-    if(sink < 0  && previous_triangle != -1) {
-        previous_triangle = -1;
-        tft.fillTriangle(120, 175, 185, 175, 152.5, 200, TFT_WHITE);
-        tft.fillTriangle(120, 142, 185, 142, 152.5, 117, TFT_BLACK);
-    }
-    if(sink > 0 && previous_triangle != 1) {
-        previous_triangle = 1;
-        tft.fillTriangle(120, 175, 185, 175, 152.5, 200, TFT_BLACK);
-        tft.fillTriangle(120, 142, 185, 142, 152.5, 117, TFT_WHITE);
-    }
-    if(sink = 0 && previous_triangle == 1) {
-        tft.fillTriangle(120, 142, 185, 142, 152.5, 117, TFT_BLACK);
-        previous_triangle = 0;
-    }
-    if(sink = 0 && previous_triangle == -1) {
-        tft.fillTriangle(120, 175, 185, 175, 152.5, 200, TFT_BLACK);
-        previous_triangle = 0;
     }
 }
